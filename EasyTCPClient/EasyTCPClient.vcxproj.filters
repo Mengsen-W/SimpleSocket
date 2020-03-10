@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\HelloSocket.cpp">
+    <ClCompile Include="Source\client.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

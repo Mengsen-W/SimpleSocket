@@ -10,10 +10,9 @@
 int main(void) {
   WORD ver = MAKEWORD(2, 2);
   WSADATA data;
-  int back;
 
   // Æô¶¯ Socket
-  back = WSAStartup(ver, &data);
+  if (-1 == WSAStartup(ver, &data)) return -1;
 
   // Í£Ö¹ Socket
   WSACleanup();
