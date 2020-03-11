@@ -35,16 +35,20 @@ int main(void) {
   _sin.sin_family = AF_INET;
   // 绑定端口号
   _sin.sin_port = htons(4567);  // host to net unsign short
-  // 绑定端口号
-  _sin.sin_addr.S_un.S_addr =
-      INADDR_ANY;  // inet_addr("127.0.0.1") INADDR_ANY 不限定默认
+  // 绑定IP地址
+  _sin.sin_addr.S_un.S_addr = INADDR_ANY;  // inet_addr("127.0.0.1") INADDR_ANY
+                                           // 不限定默认为本机所有都可以
   // 绑定全部
   if (SOCKET_ERROR == bind(_socket, (sockaddr*)&_sin, sizeof(_sin)))
-    std::cout << "Error bind to Netport." << std::endl;
+    std::cout << "Error bind" << std::endl;
+  else
+    std::cout << "Successed bind" << std::endl;
 
   // 3. listen 监听网络端口 因为由握手的过程
   if (SOCKET_ERROR == listen(_socket, 5))
-    std::cout << "Error listen to Netport." << std::endl;
+    std::cout << "Error listen" << std::endl;
+  else
+    std::cout << "Successed listen" << std::endl;
 
   // 4. accept 等待接收客户端连接
   sockaddr_in clientAddr = {};
@@ -57,7 +61,11 @@ int main(void) {
       std::cout << "Error Accept to invalid client" << std::endl;
 
     // 5. send 向客户端发送一条数据
-    std::cout << inet_ntoa(clientAddr.sin_addr) << std::endl;
+    std::cout << "New Client coming in"
+              << "\n"
+              << inet_ntoa(clientAddr.sin_addr) << std::endl;
+    ;
+
     const char msgBuf[] = "Hello, I'm Server";
     send(_cSocket, msgBuf, strlen(msgBuf) + 1, 0);
   }
