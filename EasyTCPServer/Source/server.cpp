@@ -55,25 +55,41 @@ int main(void) {
   int nAddrLend = sizeof(clientAddr);
   SOCKET _cSocket = INVALID_SOCKET;
 
+  _cSocket = accept(_socket, (sockaddr*)&clientAddr, &nAddrLend);
+  if (_cSocket == INVALID_SOCKET)
+    std::cout << "Error Accept to invalid client" << std::endl;
+  std::cout << "New Client coming in" << inet_ntoa(clientAddr.sin_addr)
+            << std::endl;
+
+  char _recvBuf[128] = {};
   while (true) {
-    _cSocket = accept(_socket, (sockaddr*)&clientAddr, &nAddrLend);
-    if (_cSocket == INVALID_SOCKET)
-      std::cout << "Error Accept to invalid client" << std::endl;
-
-    // 5. send 向客户端发送一条数据
-    std::cout << "New Client coming in"
-              << "\n"
-              << inet_ntoa(clientAddr.sin_addr) << std::endl;
-    ;
-
-    const char msgBuf[] = "Hello, I'm Server";
-    send(_cSocket, msgBuf, strlen(msgBuf) + 1, 0);
+    // 5. 从客户端接收消息
+    int nLen = recv(_cSocket, _recvBuf, 128, 0);
+    // 判断返回值
+    if (nLen <= 0) {
+      std::cout << "Client Out" << std::endl;
+      break;
+    }
+    std::cout << "recv: " << _recvBuf << std::endl;
+    // 6. 处理请求
+    if (0 == strcmp(_recvBuf, "getName")) {
+      // 7. send 向客户端发送一条数据
+      char msgBuf[] = "I'm Server";
+      send(_cSocket, msgBuf, strlen(msgBuf) + 1, 0);
+    } else if (0 == strcmp(_recvBuf, "getAge")) {
+      char msgBuf[] = "I'm long time";
+      send(_cSocket, msgBuf, strlen(msgBuf) + 1, 0);
+    } else {
+      char msgBuf[] = "getName or getAge";
+      send(_cSocket, msgBuf, strlen(msgBuf) + 1, 0);
+    }
   }
-
-  // 6. 关闭 socket
+  // 8. 关闭 socket
   closesocket(_socket);
 
   // 清除 Socket 环境
   WSACleanup();
+  std::cout << "Mission Finished" << std::endl;
+  getchar();
   return 0;
 }

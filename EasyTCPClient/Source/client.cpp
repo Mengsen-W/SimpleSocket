@@ -38,19 +38,33 @@ int main(void) {
   int ret = connect(_sock, (sockaddr*)&_sin, sizeof(sockaddr_in));
   if (SOCKET_ERROR == ret) std::cout << "Disable Connected" << std::endl;
 
-  // 3. 接收服务器信息 recv
-  char recvBuf[256] = {};
-  int nken = recv(_sock, recvBuf, 256, 0);
-  if (nken > 0) {
-    std::cout << "Successed Recv"
-              << "\n"
-              << recvBuf << std::endl;
+  while (true) {
+    // 输入请求
+    char cmdBuf[128] = {};
+    std::cin >> cmdBuf;
+    // 4. 处理请求
+    if (0 == strcmp(cmdBuf, "exit")) {
+      break;
+    } else {
+      // 5. 发送请求
+      send(_sock, cmdBuf, strlen(cmdBuf) + 1, 0);
+    }
+    // 6. 接收服务器信息 recv
+    char recvBuf[128] = {};
+    int nken = recv(_sock, recvBuf, 128, 0);
+    if (nken > 0) {
+      std::cout << "Successed Recv: "
+
+                << recvBuf << std::endl;
+    }
   }
+
   // 4. 关闭 socket
   closesocket(_sock);
 
   // 清除 Socket 环境
   WSACleanup();
+  std::cout << "Mission Finished" << std::endl;
   getchar();
   return 0;
 }
