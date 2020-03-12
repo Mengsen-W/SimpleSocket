@@ -11,10 +11,31 @@
 // 添加链接库
 // #pragma comment(lib, "ws2_32.lib")
 
-// 使用结构化的数据传递参数,必须保持数据存放方式一致
-struct DataPackage {
-  int age;
-  char name[32];
+// 命令枚举
+enum CMD { CMD_LOGIN, CMD_LOGOUT, CMD_ERROR };
+
+// 包头数据
+struct DataHead {
+  short dataLength;  //  数据长度
+  short cmd;         //  命令
+};
+
+// 包体数据
+struct Login {
+  char userName[32];
+  char passWord[32];
+};
+
+struct LoginResult {
+  int result;
+};
+
+struct Logout {
+  char userName[32];
+};
+
+struct LogoutResult {
+  int result;
 };
 
 int main(void) {
@@ -45,36 +66,48 @@ int main(void) {
   if (SOCKET_ERROR == ret) std::cout << "Disable Connected" << std::endl;
 
   while (true) {
-
     std::cout << "Input Message..." << std::endl;
-    
+
     // 输入请求
     char cmdBuf[128] = {};
     std::cin >> cmdBuf;
     // 4. 处理请求
     if (0 == strcmp(cmdBuf, "exit")) {
       break;
-    } else {
+
+    } else if (0 == strcmp(cmdBuf, "login")) {
       // 5. 发送请求
-      send(_sock, cmdBuf, strlen(cmdBuf) + 1, 0);
-    }
+
+      Login login = {"mengsen", "123qaz~"};
+      DataHead header = {sizeof(Login), CMD_LOGIN};
+      send(_sock, (const char *)&header, sizeof(DataHead), 0);
+      send(_sock, (const char *)&login, sizeof(Login), 0);
+
+      // 6. 接收返回数据
+      LoginResult res = {};
+      recv(_sock, (char *)&header, sizeof(DataHead), 0);
+      recv(_sock, (char *)&res, sizeof(LoginResult), 0);
+      std::cout << "LoginResult: " << res.result << std::endl;
+
+    } else if (0 == strcmp(cmdBuf, "logout")) {
+      // 5.发送请求
+      Logout logout = {"Mengsen"};
+      DataHead header = {sizeof(logout),CMD_LOGOUT};
+      send(_sock, (const char *)&header, sizeof(DataHead), 0);
+      send(_sock, (const char *)&logout, sizeof(Logout), 0);
+      // 6. 接收返回数据
+      LogoutResult res = {};
+      recv(_sock, (char *)&header, sizeof(DataHead), 0);
+      recv(_sock, (char *)&res, sizeof(LogoutResult), 0);
+      std::cout << "LogoutResult: " << res.result << std::endl;
 
 
-    // 6. 接收服务器信息 recv
-    char recvBuf[128] = {};
-    int nken = recv(_sock, recvBuf, 128, 0);
-
-    if (nken > 0) {
-      if (nken == 36) {
-        DataPackage *dp = (DataPackage *)recvBuf;
-        std::cout << "Success Recv Name: " << dp->name << "\n"
-                  << "Success Recv Age: " << dp->age << std::endl;
-      } else
-        std::cout << "Successed Recv: " << recvBuf << std::endl;
-    }
+    } else
+      std::cout << "Error Input: login ? or logout ? "
+                << "\n"
+                << std::endl;
   }
-
-  // 4. 关闭 socket
+  // 7. 关闭 socket
   closesocket(_sock);
 
   // 清除 Socket 环境
