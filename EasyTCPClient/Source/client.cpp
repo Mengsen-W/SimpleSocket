@@ -12,7 +12,6 @@
 // #pragma comment(lib, "ws2_32.lib")
 
 // รüม๎รถพู
-// รüม๎รถพู
 enum CMD {
   CMD_LOGIN,
   CMD_LOGIN_RESULT,
