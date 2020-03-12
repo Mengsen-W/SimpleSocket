@@ -40,7 +40,7 @@ struct Login : public DataHead {
 
 struct LoginResult : public DataHead {
   LoginResult() {
-    dataLength = sizeof(DataHead);
+    dataLength = sizeof(LoginResult);
     cmd = CMD_LOGIN_RESULT;
     result = 0;
   }
@@ -49,7 +49,7 @@ struct LoginResult : public DataHead {
 
 struct Logout : public DataHead {
   Logout() {
-    dataLength = sizeof(DataHead);
+    dataLength = sizeof(Logout);
     cmd = CMD_LOGOUT;
   }
   char userName[32];
@@ -57,7 +57,7 @@ struct Logout : public DataHead {
 
 struct LogoutResult : public DataHead {
   LogoutResult() {
-    dataLength = sizeof(DataHead);
+    dataLength = sizeof(LogoutResult);
     cmd = CMD_LOGOUT_RESULT;
     result = 0;
   }
@@ -117,7 +117,7 @@ int main(void) {
 
   while (true) {
     DataHead header = {};
-    // 5. 从客户端接收消息
+    // 5. 从客户端接收消息，另一端关闭返回0，失败返回-1
     int nLen = recv(_cSocket, (char *)&header, sizeof(DataHead), 0);
 
     // 判断返回值
@@ -173,6 +173,5 @@ int main(void) {
   WSACleanup();
   std::cout << "Mission Finished" << std::endl;
 
-  getchar();
   return 0;
 }

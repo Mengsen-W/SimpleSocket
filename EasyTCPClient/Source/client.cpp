@@ -137,6 +137,5 @@ int main(void) {
   // Çå³ý Socket »·¾³
   WSACleanup();
   std::cout << "Mission Finished" << std::endl;
-  getchar();
   return 0;
 }
