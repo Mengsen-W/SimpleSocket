@@ -12,7 +12,15 @@
 // #pragma comment(lib, "ws2_32.lib")
 
 // 命令枚举
-enum CMD { CMD_LOGIN, CMD_LOGOUT, CMD_ERROR };
+enum CMD {
+  CMD_LOGIN,
+  CMD_LOGIN_RESULT,
+  CMD_LOGOUT,
+  CMD_LOGOUT_RESULT,
+  CMD_ERROR
+};
+
+// 为了网络演示，如果考虑到生产环境可以抽象类处理
 
 // 包头数据
 struct DataHead {
@@ -21,20 +29,38 @@ struct DataHead {
 };
 
 // 包体数据
-struct Login {
+struct Login : public DataHead {
+  Login() {
+    dataLength = sizeof(Login);
+    cmd = CMD_LOGIN;
+  }
   char userName[32];
   char passWord[32];
 };
 
-struct LoginResult {
+struct LoginResult : public DataHead {
+  LoginResult() {
+    dataLength = sizeof(DataHead);
+    cmd = CMD_LOGIN_RESULT;
+    result = 0;
+  }
   int result;
 };
 
-struct Logout {
+struct Logout : public DataHead {
+  Logout() {
+    dataLength = sizeof(DataHead);
+    cmd = CMD_LOGOUT;
+  }
   char userName[32];
 };
 
-struct LogoutResult {
+struct LogoutResult : public DataHead {
+  LogoutResult() {
+    dataLength = sizeof(DataHead);
+    cmd = CMD_LOGOUT_RESULT;
+    result = 0;
+  }
   int result;
 };
 
@@ -99,34 +125,34 @@ int main(void) {
       std::cout << "Client Out" << std::endl;
       break;
     }
-    std::cout << "recv: " << header.cmd << "\n"
-              << "recv Length:" << header.dataLength << "\n"
-              << std::endl;
+    std::cout << "recv Length:" << header.dataLength << "\n" << std::endl;
 
     // 6. 处理请求
     switch (header.cmd) {
       case CMD_LOGIN: {
         Login login = {};
-        recv(_cSocket, (char *)&login, sizeof(Login), 0);
+        recv(_cSocket, (char *)&login + sizeof(DataHead),
+             sizeof(Login) - sizeof(DataHead), 0);
         std::cout << "Login UserName = " << login.userName << std::endl;
         std::cout << "Login PassWord = " << login.passWord << std::endl;
+        std::cout << "Login Datelength =  " << login.dataLength << std::endl;
 
         // 判断账号密码是否正确
         // 7. 发送返回
-        LoginResult ret = {0};
-        send(_cSocket, (const char *)&header, sizeof(DataHead), 0);
+        LoginResult ret;
         send(_cSocket, (const char *)&ret, sizeof(LoginResult), 0);
       } break;
 
       case CMD_LOGOUT: {
         Logout logout = {};
-        recv(_cSocket, (char *)&logout, sizeof(Logout), 0);
+        recv(_cSocket, (char *)&logout + sizeof(DataHead),
+             sizeof(Logout) - sizeof(DataHead), 0);
         std::cout << "Logout UserName = " << logout.userName << std::endl;
+        std::cout << "Logout Datelength =  " << logout.dataLength << std::endl;
 
         // 判断账号密码是否正确
         // 7. 发送返回
-        LogoutResult ret = {0};
-        send(_cSocket, (const char *)&header, sizeof(DataHead), 0);
+        LogoutResult ret;
         send(_cSocket, (const char *)&ret, sizeof(LogoutResult), 0);
       } break;
 

@@ -12,7 +12,16 @@
 // #pragma comment(lib, "ws2_32.lib")
 
 // 命令枚举
-enum CMD { CMD_LOGIN, CMD_LOGOUT, CMD_ERROR };
+// 命令枚举
+enum CMD {
+  CMD_LOGIN,
+  CMD_LOGIN_RESULT,
+  CMD_LOGOUT,
+  CMD_LOGOUT_RESULT,
+  CMD_ERROR
+};
+
+// 为了网络演示，如果考虑到生产环境可以抽象类处理
 
 // 包头数据
 struct DataHead {
@@ -21,20 +30,38 @@ struct DataHead {
 };
 
 // 包体数据
-struct Login {
+struct Login : public DataHead {
+  Login() {
+    dataLength = sizeof(Login);
+    cmd = CMD_LOGIN;
+  }
   char userName[32];
   char passWord[32];
 };
 
-struct LoginResult {
+struct LoginResult : public DataHead {
+  LoginResult() {
+    dataLength = sizeof(DataHead);
+    cmd = CMD_LOGIN_RESULT;
+    result = 0;
+  }
   int result;
 };
 
-struct Logout {
+struct Logout : public DataHead {
+  Logout() {
+    dataLength = sizeof(DataHead);
+    cmd = CMD_LOGOUT;
+  }
   char userName[32];
 };
 
-struct LogoutResult {
+struct LogoutResult : public DataHead {
+  LogoutResult() {
+    dataLength = sizeof(DataHead);
+    cmd = CMD_LOGOUT_RESULT;
+    result = 0;
+  }
   int result;
 };
 
@@ -78,26 +105,23 @@ int main(void) {
     } else if (0 == strcmp(cmdBuf, "login")) {
       // 5. 发送请求
 
-      Login login = {"mengsen", "123qaz~"};
-      DataHead header = {sizeof(Login), CMD_LOGIN};
-      send(_sock, (const char *)&header, sizeof(DataHead), 0);
+      Login login ;
+      strcpy_s(login.userName, "mengsen");
+      strcpy_s(login.passWord, "qaz123~");
       send(_sock, (const char *)&login, sizeof(Login), 0);
 
       // 6. 接收返回数据
       LoginResult res = {};
-      recv(_sock, (char *)&header, sizeof(DataHead), 0);
       recv(_sock, (char *)&res, sizeof(LoginResult), 0);
       std::cout << "LoginResult: " << res.result << std::endl;
 
     } else if (0 == strcmp(cmdBuf, "logout")) {
       // 5.发送请求
-      Logout logout = {"Mengsen"};
-      DataHead header = {sizeof(logout),CMD_LOGOUT};
-      send(_sock, (const char *)&header, sizeof(DataHead), 0);
+      Logout logout;
+      strcpy_s(logout.userName, "mengsen");
       send(_sock, (const char *)&logout, sizeof(Logout), 0);
       // 6. 接收返回数据
       LogoutResult res = {};
-      recv(_sock, (char *)&header, sizeof(DataHead), 0);
       recv(_sock, (char *)&res, sizeof(LogoutResult), 0);
       std::cout << "LogoutResult: " << res.result << std::endl;
 
