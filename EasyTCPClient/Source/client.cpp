@@ -11,6 +11,12 @@
 // 添加链接库
 // #pragma comment(lib, "ws2_32.lib")
 
+// 使用结构化的数据传递参数,必须保持数据存放方式一致
+struct DataPackage {
+  int age;
+  char name[32];
+};
+
 int main(void) {
   WORD ver = MAKEWORD(2, 2);
   WSADATA data;
@@ -35,10 +41,13 @@ int main(void) {
   _sin.sin_family = AF_INET;
   _sin.sin_port = htons(4567);
   _sin.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
-  int ret = connect(_sock, (sockaddr*)&_sin, sizeof(sockaddr_in));
+  int ret = connect(_sock, (sockaddr *)&_sin, sizeof(sockaddr_in));
   if (SOCKET_ERROR == ret) std::cout << "Disable Connected" << std::endl;
 
   while (true) {
+
+    std::cout << "Input Message..." << std::endl;
+    
     // 输入请求
     char cmdBuf[128] = {};
     std::cin >> cmdBuf;
@@ -49,13 +58,19 @@ int main(void) {
       // 5. 发送请求
       send(_sock, cmdBuf, strlen(cmdBuf) + 1, 0);
     }
+
+
     // 6. 接收服务器信息 recv
     char recvBuf[128] = {};
     int nken = recv(_sock, recvBuf, 128, 0);
-    if (nken > 0) {
-      std::cout << "Successed Recv: "
 
-                << recvBuf << std::endl;
+    if (nken > 0) {
+      if (nken == 36) {
+        DataPackage *dp = (DataPackage *)recvBuf;
+        std::cout << "Success Recv Name: " << dp->name << "\n"
+                  << "Success Recv Age: " << dp->age << std::endl;
+      } else
+        std::cout << "Successed Recv: " << recvBuf << std::endl;
     }
   }
 
