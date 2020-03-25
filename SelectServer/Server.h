@@ -11,7 +11,6 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include <Winsock2.h>
-#include <Windows.h>
 #include <ws2tcpip.h>
 #include <mswSock.h>
 

@@ -55,8 +55,8 @@ void ServerSocket::sendMessage(const std::string& info) {
 
 void ServerSocket::sendFrontBuffer() {
   // WSABUF buf
-  m_sendWSA.len = m_sendBuffers.front.size();
-  m_sendWSA.buf = (char*)m_sendBuffers.front.data();
+  m_sendWSA.len = m_sendBuffers.front().size();
+  m_sendWSA.buf = (char*)m_sendBuffers.front().data();
   auto result =
       WSASend(m_socket, &m_sendWSA, 1, nullptr, 0, &m_sendUnit, nullptr);
   if (result != 0) {
