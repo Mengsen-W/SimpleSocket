@@ -10,15 +10,16 @@
 #endif  // UNICODE
 #define WIN32_LEAN_AND_MEAN
 
-#include <mswsock.h>
-#include <winsock2.h>
+#include <Winsock2.h>
 #include <ws2tcpip.h>
+#include <mswSock.h>
 
 #include <cstdio>
 #include <functional>
 #include <iostream>
 
 #include "ServerSocket.h"
+#pragma comment(lib, "Ws2_32.lib")
 
 class Server {
  public:
@@ -27,19 +28,27 @@ class Server {
   bool startAccept();
   void waitingForAccept();
   void waitingForIO();
-  bool isRunning();
+  bool isRunning() {
+    if (m_running)
+      return true;
+    else
+      return false;
+  }
   void stop() { m_running = false; }
   typedef std::function<void(ServerSocket::pointer)> HandleNewConnect;
+
+  // 供使用者回调函数
   HandleNewConnect newConnect;
+
   ServerSocket::HandleRecvFunction socketRecv;
   ServerSocket::HandleClose socketClose;
-  ServerSocket::HandleError sockerError;
+  ServerSocket::HandleError socketError;
 
  private:
   u_short m_port;
   SOCKET m_listenSocket;
   HANDLE m_completePort;
-  LPFN_ACCEPTEX lpfnAcceptEx;
+  LPFN_ACCEPTEX lpfnAcceptEx = NULL;
   SOCKET m_currentAcceptSocket;
   WSAOVERLAPPED m_acceptUnite;
   HANDLE m_ioCompletePort;
