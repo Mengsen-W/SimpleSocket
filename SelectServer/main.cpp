@@ -101,7 +101,6 @@ int main(int argc, char** argv) {
   server->socketRecv = handleRecvData;
   server->socketClose = handleRemovePlayer;
 
-  auto clientIO = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
   bool gameOver = false;
   auto p = server.get();
 
@@ -129,7 +128,7 @@ int main(int argc, char** argv) {
   if (t && t->joinable()) t->join();
   if (io && io->joinable()) io->join();
 
-  // 此处停止 ServerSocket
+  // 此处停止
   players.clear();
   WSACleanup();
   return 0;

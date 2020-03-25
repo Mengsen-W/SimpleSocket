@@ -11,6 +11,7 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include <Winsock2.h>
+#include <Windows.h>
 #include <ws2tcpip.h>
 #include <mswSock.h>
 
@@ -28,12 +29,7 @@ class Server {
   bool startAccept();
   void waitingForAccept();
   void waitingForIO();
-  bool isRunning() {
-    if (m_running)
-      return true;
-    else
-      return false;
-  }
+  bool isRunning() const { return m_running; }
   void stop() { m_running = false; }
   typedef std::function<void(ServerSocket::pointer)> HandleNewConnect;
 
